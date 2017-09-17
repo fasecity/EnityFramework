@@ -19,7 +19,8 @@ namespace NinJaDomain
         public bool ServedInObiOne { get; set; }
         public Clan Clan { get; set; }
         public int ClanId { get; set; }
-        public List<NinjaEquipment> EquipmentOwned { get; set; }
+        ///--------------------->>> lazy loading make it virtual:EF gets prop in instance
+        public virtual List<NinjaEquipment> EquipmentOwned { get; set; }
     }
     public class Clan
     {

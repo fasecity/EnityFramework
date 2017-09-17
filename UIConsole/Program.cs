@@ -24,7 +24,8 @@ namespace UIConsole
             //FindNinjas();
             //RetriveWithStoredProcedure();
             // DeleteNinja();
-            InsertGraphNinjaWithEqiup();
+            // InsertGraphNinjaWithEqiup();
+            GraphQueryRetrive();
         }
 
         private static void InsertNinja()
@@ -340,6 +341,58 @@ namespace UIConsole
 
                 context.SaveChanges();
             }
+        }
+
+        private static void GraphQueryRetrive()
+        {
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+
+                //No loading:------------------------
+                //all this returns is ninja object---no weapons/equiip
+                // var ninja = context.Ninjas.FirstOrDefault(x => x.Name.StartsWith("Huboy"));
+
+
+                //Eager loading:---------------------------------------------------------:
+                
+                //if you want equipment you gotta include it,with eagerloading DbSet 
+                //has method called include. Dont abuse eagerloading slows down db
+
+                var ninja = context.Ninjas.Include(x => x.EquipmentOwned)
+                  .FirstOrDefault(x => x.Name.StartsWith("Huboy"));
+
+
+                //--------------------------------------------------------------------------------////
+                //explict loading :----------------------------------------------------------------
+                
+                //if state is note specified eqipmnet dont load
+                  ninja = context.Ninjas.FirstOrDefault(x => x.Name.StartsWith("Huboy"));
+                 Console.WriteLine("ninja retrived : {0} , Equipment {1}",ninja.Name ,ninja.EquipmentOwned.Count);//count 0
+
+                //eager loads collection explicitly
+                context.Entry(ninja).Collection(x => x.EquipmentOwned).Load();//has to be specified without lazy loading
+                Console.WriteLine("ninja retrived : {0} , Equipment {1}", ninja.Name, ninja.EquipmentOwned.Count);//2
+                //-------------------------------------------------------------------------------------------------------//
+               
+
+                //Lazy loading ------------------------------------------------------------------------:
+                
+                // make equipment prop virtual EF does some magic and gets count
+                //magic comes with a performence hit if your loading alot of stuff since EF
+                //in a foreach it would multiply the trips to the database by 2 for each row
+                //since the equipment coloum is being lazy loaded in advance
+                //use sparengly:
+                Console.WriteLine("ninja retrived : {0} , Equipment {1}", ninja.Name, ninja.EquipmentOwned.Count);//count 2
+
+
+
+
+
+
+
+            }
+
         }
     }
 }
