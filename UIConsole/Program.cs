@@ -25,7 +25,8 @@ namespace UIConsole
             //RetriveWithStoredProcedure();
             // DeleteNinja();
             // InsertGraphNinjaWithEqiup();
-            GraphQueryRetrive();
+            // GraphQueryRetrive();
+            ProjectedQuery();
         }
 
         private static void InsertNinja()
@@ -351,7 +352,7 @@ namespace UIConsole
 
                 //No loading:------------------------
                 //all this returns is ninja object---no weapons/equiip
-                // var ninja = context.Ninjas.FirstOrDefault(x => x.Name.StartsWith("Huboy"));
+                var ninja = context.Ninjas.FirstOrDefault(x => x.Name.StartsWith("Huboy"));
 
 
                 //Eager loading:---------------------------------------------------------:
@@ -359,7 +360,7 @@ namespace UIConsole
                 //if you want equipment you gotta include it,with eagerloading DbSet 
                 //has method called include. Dont abuse eagerloading slows down db
 
-                var ninja = context.Ninjas.Include(x => x.EquipmentOwned)
+                 ninja = context.Ninjas.Include(x => x.EquipmentOwned)
                   .FirstOrDefault(x => x.Name.StartsWith("Huboy"));
 
 
@@ -393,6 +394,19 @@ namespace UIConsole
 
             }
 
+        }
+
+        private static void ProjectedQuery()
+        {
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+
+                //select gets scalar data in an annonymus object
+                var ninja = context.Ninjas
+                    .Select(x => new { x.Name, x.ServedInObiOne, x.EquipmentOwned }).ToList();
+
+            }
         }
     }
 }
