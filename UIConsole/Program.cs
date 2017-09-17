@@ -18,7 +18,9 @@ namespace UIConsole
             Database.SetInitializer(new NullDatabaseInitializer<NinjaContext>());
 
             // InsertNinja();
-           // QIterateCollection();
+            // QIterateCollection();
+            //UpdateNinja();
+            //UpdateNinjaDisconnectedModel();
         }
 
         private static void InsertNinja()
@@ -82,6 +84,94 @@ namespace UIConsole
                 //{
                 //    Console.WriteLine(item.Name);
                 //}
+            }
+        }
+
+        private static void UpdateNinja()
+        {
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+
+                var ninja = context.Ninjas.FirstOrDefault();
+                
+                //sets inverse of the boolean serverdInObiOne 
+                //in the first ninja hit in db:
+                ninja.ServedInObiOne = (!ninja.ServedInObiOne);
+
+                context.SaveChanges();
+
+            }
+        }
+
+        /// <summary>
+        /// This is for disconnected apps like websites,api service.
+        /// Take deep look at disconnected model this is just the surface
+        /// Take EF enterpise course for patterns to solve data persistance
+        /// </summary>
+        private static void UpdateNinjaDisconnectedModel()
+        {
+            //----note:
+            //object to be changed
+            Ninja ninja;
+
+            //-----note:
+            //imaginge the server is retriving a client object and sending 
+            //it back to the client
+
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+
+                ninja = context.Ninjas.FirstOrDefault();
+            }
+
+            //-------note:
+            //change: imagine the client updates said object and sends it back
+
+            ninja.ServedInObiOne = (!ninja.ServedInObiOne);
+
+            //---------note:
+            //updating = false : EF has no way of nowing the state of the object
+            //All this does is reinsatiate the context and call save()
+            //the resut is only the query gets executed but save changes doesnt:
+            //has no clue of the history of ninja,
+
+            using (var context = new NinjaContext())
+            {
+                //DBcontext Log:
+
+                context.Database.Log = Console.WriteLine;
+
+                //--------note:
+                //lets make aware of ninja for argument sake:
+                //lets add said ninja object: EF will add without being aware of the 
+                //state of ninja.EF is not a human and will do what you tell it:
+
+                //----------------code:-----------commeted out for reason above !!!!!!!!
+                //context.Ninjas.Add(ninja);
+
+                //-------note:
+                //if we use the attach method (we say hey watch this data
+                //But it still has no way of knowing the state of ninja object
+                //and how it used to have a different value:
+                //this would be usefull to use if the value being changed was underneath 
+                //the attach statment:
+
+                context.Ninjas.Attach(ninja);
+
+                //-------note:Entery state
+                //So we have to make EF context aware of the state of the object state
+                //This is a great way to force entity framework to update all of the object
+                //only downside is it goes through all the coloums:
+
+                context.Entry(ninja).State = EntityState.Modified;
+
+                context.SaveChanges();
+
+                //reasources:--read more
+                //--https://stackoverflow.com/questions/30987806/dbset-attachentity-vs-dbcontext-entryentity-state-entitystate-modified
+
             }
         }
     }
