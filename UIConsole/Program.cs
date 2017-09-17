@@ -21,6 +21,10 @@ namespace UIConsole
             // QIterateCollection();
             //UpdateNinja();
             //UpdateNinjaDisconnectedModel();
+            //FindNinjas();
+            //RetriveWithStoredProcedure();
+            // DeleteNinja();
+            InsertGraphNinjaWithEqiup();
         }
 
         private static void InsertNinja()
@@ -29,13 +33,13 @@ namespace UIConsole
             //wont work unless a clan is created the clan Id = 1:
             var ninja1 = new Ninja
             {                
-                Name = "rolo",
+                Name = "joiud",
                 ServedInObiOne = false,
                 ClanId = 1
             };
             var ninja2 = new Ninja
             {
-                Name = "jumand",
+                Name = "joe",
                 ServedInObiOne = true,
                 ClanId = 1
             };
@@ -49,7 +53,7 @@ namespace UIConsole
                 //Ninjacontext only adds one object at a time 
                 //unless using addRange method 
                 //takes in Ienumrable collection type:
-                context.Ninjas.AddRange(new List<Ninja>{ninja1,ninja2 });
+                context.Ninjas.AddRange(new List<Ninja>{ninja1,ninja2 }); //-------->adds more than 1 object
                 
                 //add and save methods for dbset:NinjaContext:
                 //context.Ninjas.Add(ninja1); //----> regular single object add
@@ -172,6 +176,169 @@ namespace UIConsole
                 //reasources:--read more
                 //--https://stackoverflow.com/questions/30987806/dbset-attachentity-vs-dbcontext-entryentity-state-entitystate-modified
 
+            }
+        }
+        
+        private static void FindNinjas()
+        {
+            using (var context = new NinjaContext())
+            {
+
+                context.Database.Log = Console.WriteLine;
+
+                //keyval reps the PKey value
+                var keyVal = 4;
+
+
+                //find method searched for the element with said value
+                //uses single or default and serches top 2 
+                var ninja = context.Ninjas.Find(keyVal);
+
+                Console.WriteLine("afterFind-1: {0}",ninja.Name);
+
+                //------------------------------------------
+                //for some cool reason the find method doest search the database twice
+                //if the keyval has been already searched b4,
+                //it doesnt make a second trip to db even if b
+                var someninja = context.Ninjas.Find(keyVal);
+
+                Console.WriteLine("afterFind-2: {0}", someninja.Name);
+
+
+
+
+
+
+                //even tho they are diffrent local variables they refrence the same
+                //index in the object []array in the find(param obj[] keyVal)
+                //DBset is just an Ienumrable of Objects :
+               
+                //Console.WriteLine(ninja.Equals(someninja));
+                //Console.WriteLine(ReferenceEquals(ninja,someninja));
+                ///Console.WriteLine(ninja == someninja);
+
+
+
+            }
+        }
+        /// <summary>
+        /// Not working need to study stored procedures
+        /// simple tho make stored proc and iterate
+        /// </summary>
+        private static void RetriveWithStoredProcedure()
+        {
+            using (var context = new NinjaContext())
+            {
+                //context.Database.Log = Console.WriteLine;
+
+                
+                //var ninjas = context.Ninjas.SqlQuery("exec dbo.Procedure_2");
+                //foreach (var item in ninjas)
+                //{
+                //    Console.WriteLine(item.Name);
+                //}
+            }
+        }
+
+        private static void DeleteNinja()
+        {
+            Ninja ninja;
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+
+                 ninja = context.Ninjas.FirstOrDefault();
+
+                //context.Ninjas.Remove(ninja);
+
+                //context.SaveChanges();
+
+            }
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+
+                context.Entry(ninja).State = EntityState.Deleted;
+                //context.Ninjas.Remove(ninja);
+
+                context.SaveChanges();
+
+            }
+
+        }
+        /// <summary>
+        /// this method is okay but makes 2 trips to db
+        /// </summary>
+        private static void DeleteNinjaByID()
+        {
+            var keyVal = 6;
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+
+                var delNinja = context.Ninjas.Find(keyVal);
+
+                context.Ninjas.Remove(delNinja);
+                context.SaveChanges();
+
+            }
+        }
+        /// <summary>
+        /// Makes only one trip to DB, most efficient
+        /// way to delete object
+        /// (Learn stored procs asap)
+        /// </summary>
+        private static void DeleteNinjaStoredProc()
+        {
+            using (var context = new NinjaContext())
+            {
+                var keyVal = 3;
+                context.Database.Log = Console.WriteLine;
+
+                context.Database.ExecuteSqlCommand("exec DeleteNinjaByID {0}",keyVal);
+                context.SaveChanges();
+
+            }
+        }
+
+        private static void InsertGraphNinjaWithEqiup()
+        {
+            var ninja1 = new Ninja
+            {
+                Name = "Huboy",
+                ServedInObiOne = false,
+                ClanId = 1
+            };
+            var eqipment1 = new NinjaEquipment
+            {
+                Name = "bulldozer",
+                EquipmentType ="vehicle"
+                
+            };
+            var eqipment2 = new NinjaEquipment
+            {
+                Name = "sword",
+                EquipmentType = "knife"
+
+            };
+
+
+            using (var context = new NinjaContext())
+            {
+                //Log the data from ef:
+                context.Database.Log = Console.WriteLine;
+
+                //One path is adding the ninja to the context first
+                //then adding the equipment.When this is done EF is
+                //smart enough to add the equipment to the context implicitly
+                //thus linking it with the ninja1 object-- lil magic in code first convention
+                //the untracked(not added to context) obj(eqipment) inherits the state of ninja1.
+                //thus equipment keeps it's state when saved in the contxt
+                context.Ninjas.Add(ninja1);
+                ninja1.EquipmentOwned.Add(eqipment1);
+                ninja1.EquipmentOwned.Add(eqipment2);
+
+                context.SaveChanges();
             }
         }
     }
