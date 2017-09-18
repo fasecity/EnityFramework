@@ -26,7 +26,7 @@ namespace UIConsole
             // DeleteNinja();
             // InsertGraphNinjaWithEqiup();
             // GraphQueryRetrive();
-            ProjectedQuery();
+          //  ProjectedQuery();
         }
 
         private static void InsertNinja()

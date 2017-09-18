@@ -47,9 +47,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataHelper.cs" />
     <Compile Include="Migrations\201709160656526_Initial.cs" />
     <Compile Include="Migrations\201709160656526_Initial.Designer.cs">
       <DependentUpon>201709160656526_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709181715054_interfaceColoumns.cs" />
+    <Compile Include="Migrations\201709181715054_interfaceColoumns.Designer.cs">
+      <DependentUpon>201709181715054_interfaceColoumns.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="NinjaContext.cs" />
@@ -68,6 +73,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201709160656526_Initial.resx">
       <DependentUpon>201709160656526_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709181715054_interfaceColoumns.resx">
+      <DependentUpon>201709181715054_interfaceColoumns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
